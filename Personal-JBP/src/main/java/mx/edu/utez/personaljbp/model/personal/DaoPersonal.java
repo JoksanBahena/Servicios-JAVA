@@ -1,5 +1,6 @@
 package mx.edu.utez.personaljbp.model.personal;
 
+import com.sun.source.tree.TryTree;
 import mx.edu.utez.personaljbp.model.Repository;
 import mx.edu.utez.personaljbp.model.position.BeanPosition;
 import mx.edu.utez.personaljbp.utils.MySQLConnection;
@@ -28,7 +29,7 @@ public class DaoPersonal implements Repository<BeanPersonal> {
 
         try {
             conn = client.getConnection();
-            String query = "SELECT pe.*, po.description FROM personal pe" + "JOIN position po ON po.id = pe.position_id";
+            String query = "SELECT pe.*, po.description FROM personal pe JOIN position po ON po.id = pe.position_id";
             pstm = conn.prepareStatement(query);
             rs = pstm.executeQuery();
 
@@ -57,15 +58,42 @@ public class DaoPersonal implements Repository<BeanPersonal> {
 
     @Override
     public BeanPersonal findOne(Long id) {
-        return null;
+        BeanPersonal person = null;
+        BeanPosition position = null;
+        try {
+            conn = client.getConnection();
+            String query = "SELECT pe.*, po.description FROM personal pe JOIN position po ON po.id = pe.position_id WHERE pe.id = ?";
+            pstm = conn.prepareStatement(query);
+            pstm.setLong(1, id);
+            rs = pstm.executeQuery();
+
+            while (rs.next()) {
+                person = new BeanPersonal();
+                position = new BeanPosition();
+                person.setId(rs.getLong("id"));
+                person.setName(rs.getString("name"));
+                person.setSurname(rs.getString("surname"));
+                person.setLastname(rs.getString("lastname"));
+                person.setBirthday(rs.getString("birthday"));
+                person.setSalary(rs.getDouble("salary"));
+                position.setDescription(rs.getString("description"));
+                person.setPosition(position);
+            }
+
+        }catch (SQLException e) {
+            Logger.getLogger(DaoPersonal.class.getName()).log(Level.SEVERE, "Error -> save: " + e.getMessage());
+
+        }finally {
+            client.close(conn, pstm, rs);
+        }
+        return person;
     }
 
     @Override
     public Response<BeanPersonal> save(BeanPersonal person) {
         try {
             conn = client.getConnection();
-            String query = "INSERT INTO personal (name, surname, lastname, birthday, salary, position_id)" +
-                    "VALUES (?,?,?,?,?,?) ";
+            String query = "INSERT INTO personal (name, surname, lastname, birthday, salary, position_id) VALUES (?,?,?,?,?,?) ";
             pstm = conn.prepareStatement(query);
             pstm.setString(1, person.getName());
             pstm.setString(2, person.getSurname());
