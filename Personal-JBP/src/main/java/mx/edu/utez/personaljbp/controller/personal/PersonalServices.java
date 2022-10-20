@@ -2,17 +2,18 @@ package mx.edu.utez.personaljbp.controller.personal;
 
 import mx.edu.utez.personaljbp.model.personal.BeanPersonal;
 import mx.edu.utez.personaljbp.model.personal.DaoPersonal;
+import mx.edu.utez.personaljbp.utils.Response;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Path("/api/personal")
 public class PersonalServices {
+    Map<String, Object> response = new HashMap<>();
+
     @GET
     @Path("/")
     @Produces(value = {"application/json"})
@@ -20,14 +21,22 @@ public class PersonalServices {
 
         return new DaoPersonal().findAll();
     }
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BeanPersonal getById(@PathParam("id") Long id) {
+        return new DaoPersonal().findOne(id);
+    }
 
     @POST
     @Path("/")
-    @Produces(value = {"application/json"})
-    public Map<String, Object> save() {
-        //Buscar informacion sobre como obtener el body->request
-        //para convertir a un BeanPersonal
-
-        //CODE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> save(BeanPersonal personal) {
+        System.out.println(personal.getName());
+        //Dao result -> Response
+        Response<BeanPersonal> result = new DaoPersonal().save(personal);
+        response.put("result", result);
+        return response;
     }
 }

@@ -3,6 +3,7 @@ package mx.edu.utez.personaljbp.model.personal;
 import mx.edu.utez.personaljbp.model.Repository;
 import mx.edu.utez.personaljbp.model.position.BeanPosition;
 import mx.edu.utez.personaljbp.utils.MySQLConnection;
+import mx.edu.utez.personaljbp.utils.Response;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,17 +61,44 @@ public class DaoPersonal implements Repository<BeanPersonal> {
     }
 
     @Override
-    public boolean save(BeanPersonal object) {
-        return false;
+    public Response<BeanPersonal> save(BeanPersonal person) {
+        try {
+            conn = client.getConnection();
+            String query = "INSERT INTO personal (name, surname, lastname, birthday, salary, position_id)" +
+                    "VALUES (?,?,?,?,?,?) ";
+            pstm = conn.prepareStatement(query);
+            pstm.setString(1, person.getName());
+            pstm.setString(2, person.getSurname());
+            pstm.setString(3, person.getLastname());
+            pstm.setString(4, person.getBirthday());
+            pstm.setDouble(5, person.getSalary());
+            pstm.setLong(6, person.getPosition().getId());
+
+            if (pstm.executeUpdate() == 1) {
+                return  new Response<>(200, "Registrado correctamente", person, false);
+
+            }else {
+                return new Response<>(200, "Error al registrar", person, true);
+
+            }
+
+        }catch (SQLException e) {
+            Logger.getLogger(DaoPersonal.class.getName()).log(Level.SEVERE, "Error -> save: " + e.getMessage());
+            return new Response<>(400, "Error con el servidor", null, true);
+
+        }finally {
+            client.close(conn, pstm, rs);
+
+        }
     }
 
     @Override
-    public boolean update(BeanPersonal object) {
-        return false;
+    public Response<BeanPersonal> update(BeanPersonal object) {
+        return null;
     }
 
     @Override
-    public boolean remove(Long id) {
-        return false;
+    public Response<BeanPersonal> remove(Long id) {
+        return null;
     }
 }

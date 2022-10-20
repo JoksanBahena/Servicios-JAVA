@@ -1,5 +1,8 @@
 package mx.edu.utez.personaljbp.model.position;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class BeanPosition {
     Long id;
     String position;

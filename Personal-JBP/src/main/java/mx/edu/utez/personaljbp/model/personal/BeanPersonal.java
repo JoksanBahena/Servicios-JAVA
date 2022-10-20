@@ -2,6 +2,9 @@ package mx.edu.utez.personaljbp.model.personal;
 
 import mx.edu.utez.personaljbp.model.position.BeanPosition;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class BeanPersonal {
     Long id;
     String name;
